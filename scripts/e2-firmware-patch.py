@@ -2,6 +2,7 @@
 
 import argparse
 import hashlib
+import os
 from bsdiff4 import file_patch
 
 def main():
@@ -10,7 +11,9 @@ def main():
     parser.add_argument("-d", "--dst", dest='dst_path', help="path/to/destination/hacked-SYSTEM.VSB")
     parser.add_argument("-p", "--patch", dest='patch_path', help="path/to/hacktribe-2.patch")
     parser.add_argument("-e", "--edit-header", dest='edit_header', action='store_true', help="Edit file header to allow install on e2 synth.")
-    parser.set_defaults(edit_header=False)
+    parser.add_argument("--no-ftboot", dest='ftboot', action='store_false', help="Omit the LOAD FREETRIBE menu item.")
+    parser.add_argument("--ftboot-patch", dest='ftboot_patch_path', default='patch/ftboot.patch', help="path/to/ftboot.patch")
+    parser.set_defaults(edit_header=False, ftboot=True)
     
     args = parser.parse_args()
 
@@ -41,11 +44,13 @@ def main():
     
     src_hash = '1d0f0689d5a12c8a8bde9f821f2a59adc5f6cd6012ddb201ebb192b72468a646'
 
+    hash_prefix = 'ftboot-' if args.ftboot else ''
+
     if edit_header:
-         with open ("hash/modified-hacked-SYSTEM.VSB.sha", "r") as f:
+         with open ("hash/" +hash_prefix+ "modified-hacked-SYSTEM.VSB.sha", "r") as f:
             targ_hash=f.readlines()[0].split()[0]       
     else:
-        with open ("hash/hacked-SYSTEM.VSB.sha", "r") as f:
+        with open ("hash/" +hash_prefix+ "hacked-SYSTEM.VSB.sha", "r") as f:
             targ_hash=f.readlines()[0].split()[0]
 
 
@@ -66,6 +71,12 @@ def main():
     print('Patching firmware for ' +device+ '...\n')
 
     file_patch(src_path, dst_path, patch_path)
+
+    if args.ftboot:
+        # LOAD FREETRIBE: patch on top of hacktribe-2.patch.
+        tmp_path = dst_path + '.tmp'
+        file_patch(dst_path, tmp_path, args.ftboot_patch_path)
+        os.replace(tmp_path, dst_path)
 
     if edit_header:
         modify_header(dst_path)

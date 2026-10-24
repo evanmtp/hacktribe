@@ -12,6 +12,7 @@ Electribe 2 hacks, based on sampler firmware version 2.02.
 - Expanded MIDI implementation
 - Custom init pattern
 - Supports synth and sampler hardware
+- Load [Freetribe](docs/freetribe-boot.md) from the SD card, in `DATA UTILITY`
 
 See a list of [demo videos](https://github.com/bangcorrupt/hacktribe/wiki/Features#demo-videos) in the [wiki](https://github.com/bangcorrupt/hacktribe/wiki).
 
